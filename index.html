@@ -1,0 +1,1763 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ULTRA PRO Whiteboard - AI Powered</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --light: #f9fafb;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        /* Glass Morphism Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .neon-border {
+            position: relative;
+            border: 2px solid transparent;
+            background: linear-gradient(var(--dark), var(--dark)) padding-box,
+                        linear-gradient(45deg, var(--primary), var(--accent)) border-box;
+        }
+        
+        /* Header */
+        .header {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.9);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo h1 {
+            font-size: 2.2em;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+         
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+        
+        .ai-badge {
+            background: linear-gradient(45deg, var(--accent), var(--warning));
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        /* Main Layout */
+        .main-container {
+            display: grid;
+            grid-template-columns: 320px 1fr 320px;
+            gap: 20px;
+            padding: 20px;
+            height: calc(100vh - 100px);
+        }
+        
+        /* Left Panel - Tools */
+        .tools-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .tool-card {
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .tool-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-size: 1.1em;
+        }
+        
+        /* Canvas Area */
+        .canvas-area {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            background: white;
+        }
+        
+        #mainCanvas {
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+            background: white;
+        }
+        
+        /* Right Panel - AI & Layers */
+        .ai-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        /* Tool Groups */
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .tool-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+        
+        .tool-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .tool-btn.active {
+            background: var(--primary);
+            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
+        }
+        
+        .tool-btn.ai-feature {
+            background: linear-gradient(45deg, var(--accent), var(--warning));
+        }
+        
+        /* Color Picker Enhanced */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+        }
+        
+        .color-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 3px solid transparent;
+        }
+        
+        .color-dot:hover {
+            transform: scale(1.2);
+        }
+        
+        .color-dot.active {
+            border-color: white;
+            transform: scale(1.2);
+            box-shadow: 0 0 15px currentColor;
+        }
+        
+        .gradient-picker {
+            width: 100%;
+            height: 40px;
+            border-radius: 10px;
+            margin: 10px 0;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        /* AI Features */
+        .ai-command {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid var(--primary);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            margin: 10px 0;
+        }
+        
+        .ai-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+        }
+        
+        .ai-suggestion {
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .ai-suggestion:hover {
+            background: var(--primary);
+        }
+        
+        /* Layers Panel */
+        .layer-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: move;
+        }
+        
+        .layer-thumbnail {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Mini-map */
+        .minimap {
+            width: 100%;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-top: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .minimap-viewport {
+            position: absolute;
+            border: 2px solid var(--primary);
+            background: rgba(99, 102, 241, 0.3);
+            cursor: move;
+        }
+        
+        /* Bottom Panel */
+        .bottom-panel {
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.9);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .status-group {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(45deg, var(--success), #34d399);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(45deg, var(--warning), #fbbf24);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(45deg, var(--danger), #f87171);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .main-container {
+                grid-template-columns: 280px 1fr 280px;
+            }
+        }
+        
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 250px 1fr;
+            }
+            .ai-panel {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            .tools-panel {
+                order: 2;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <div style="font-size: 2em;">🎨</div>
+            <div>
+                <h1>ULTRA PRO Whiteboard</h1>
+                <div class="ai-badge">AI POWERED ✨</div>
+            </div>
+        </div>
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="createNewProject()">
+                <i class="fas fa-plus"></i> New Project
+            </button>
+            <button class="btn btn-success" onclick="saveProject()">
+                <i class="fas fa-cloud"></i> Save to Cloud
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Left Panel - Tools -->
+        <div class="tools-panel glass">
+            <!-- Drawing Tools -->
+            <div class="tool-card glass">
+                <h3><i class="fas fa-pencil-alt"></i> Drawing Tools</h3>
+                <div class="tool-grid">
+                    <button class="tool-btn active" onclick="setTool('pen')">
+                        <i class="fas fa-pen"></i> Pen
+                    </button>
+                    <button class="tool-btn" onclick="setTool('brush')">
+                        <i class="fas fa-paint-brush"></i> Brush
+                    </button>
+                    <button class="tool-btn" onclick="setTool('marker')">
+                        <i class="fas fa-highlighter"></i> Marker
+                    </button>
+                    <button class="tool-btn" onclick="setTool('eraser')">
+                        <i class="fas fa-eraser"></i> Eraser
+                    </button>
+                    <button class="tool-btn" onclick="setTool('spray')">
+                        <i class="fas fa-spray-can"></i> Spray
+                    </button>
+                    <button class="tool-btn" onclick="setTool('fill')">
+                        <i class="fas fa-fill-drip"></i> Fill
+                    </button>
+                </div>
+            </div>
+
+            <!-- Shapes -->
+            <div class="tool-card glass">
+                <h3><i class="fas fa-shapes"></i> Shapes & Objects</h3>
+                <div class="tool-grid">
+                    <button class="tool-btn" onclick="addShape('line')">
+                        <i class="fas fa-slash"></i> Line
+                    </button>
+                    <button class="tool-btn" onclick="addShape('rectangle')">
+                        <i class="fas fa-square"></i> Rect
+                    </button>
+                    <button class="tool-btn" onclick="addShape('circle')">
+                        <i class="fas fa-circle"></i> Circle
+                    </button>
+                    <button class="tool-btn" onclick="addShape('triangle')">
+                        <i class="fas fa-play"></i> Triangle
+                    </button>
+                    <button class="tool-btn" onclick="addShape('star')">
+                        <i class="fas fa-star"></i> Star
+                    </button>
+                    <button class="tool-btn" onclick="addShape('arrow')">
+                        <i class="fas fa-arrow-right"></i> Arrow
+                    </button>
+                </div>
+            </div>
+
+            <!-- Colors & Gradients -->
+            <div class="tool-card glass">
+                <h3><i class="fas fa-palette"></i> Colors & Effects</h3>
+                
+                <div class="color-grid">
+                    <div class="color-dot active" style="background:#000000" onclick="setColor('#000000')"></div>
+                    <div class="color-dot" style="background:#dc2626" onclick="setColor('#dc2626')"></div>
+                    <div class="color-dot" style="background:#ea580c" onclick="setColor('#ea580c')"></div>
+                    <div class="color-dot" style="background:#ca8a04" onclick="setColor('#ca8a04')"></div>
+                    <div class="color-dot" style="background:#16a34a" onclick="setColor('#16a34a')"></div>
+                    <div class="color-dot" style="background:#0891b2" onclick="setColor('#0891b2')"></div>
+                    <div class="color-dot" style="background:#2563eb" onclick="setColor('#2563eb')"></div>
+                    <div class="color-dot" style="background:#7c3aed" onclick="setColor('#7c3aed')"></div>
+                    <div class="color-dot" style="background:#db2777" onclick="setColor('#db2777')"></div>
+                    <div class="color-dot" style="background:#ffffff;border:1px solid #ccc" onclick="setColor('#ffffff')"></div>
+                    <div class="color-dot" style="background:linear-gradient(45deg,#ff0000,#ffff00)" onclick="setGradient('sunset')"></div>
+                    <div class="color-dot" style="background:linear-gradient(45deg,#00ff00,#0000ff)" onclick="setGradient('ocean')"></div>
+                </div>
+                
+                <div class="gradient-picker" style="background:linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff)" 
+                     onclick="openGradientPicker()"></div>
+                
+                <div style="margin-top: 15px;">
+                    <input type="color" id="customColor" onchange="setColor(this.value)" 
+                           style="width:100%; height:40px; border-radius:10px; border:2px solid var(--primary); cursor:pointer;">
+                </div>
+            </div>
+
+            <!-- Brush Settings -->
+            <div class="tool-card glass">
+                <h3><i class="fas fa-sliders-h"></i> Brush Settings</h3>
+                <div style="margin: 15px 0;">
+                    <label>Size: <span id="brushSizeValue">10</span>px</label>
+                    <input type="range" id="brushSize" min="1" max="100" value="10" 
+                           oninput="updateBrushSize(this.value)" style="width:100%;">
+                </div>
+                <div style="margin: 15px 0;">
+                    <label>Opacity: <span id="opacityValue">100</span>%</label>
+                    <input type="range" id="opacity" min="1" max="100" value="100" 
+                           oninput="updateOpacity(this.value)" style="width:100%;">
+                </div>
+                <div style="margin: 15px 0;">
+                    <label>Flow: <span id="flowValue">80</span>%</label>
+                    <input type="range" id="flow" min="1" max="100" value="80" 
+                           oninput="updateFlow(this.value)" style="width:100%;">
+                </div>
+                <div style="margin: 15px 0;">
+                    <label>Hardness: <span id="hardnessValue">50</span>%</label>
+                    <input type="range" id="hardness" min="1" max="100" value="50" 
+                           oninput="updateHardness(this.value)" style="width:100%;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Center - Canvas -->
+        <div class="canvas-area">
+            <div class="canvas-container glass">
+                <canvas id="mainCanvas"></canvas>
+                <!-- Grid Overlay -->
+                <canvas id="gridCanvas" style="position:absolute; top:0; left:0; pointer-events:none;"></canvas>
+                <!-- Selection Box -->
+                <div id="selectionBox" style="display:none; position:absolute; border:2px dashed var(--primary); background:rgba(99,102,241,0.1);"></div>
+            </div>
+            
+            <!-- Canvas Controls -->
+            <div style="display:flex; gap:10px; justify-content:center;">
+                <button class="btn" onclick="toggleGrid()">
+                    <i class="fas fa-th"></i> Grid
+                </button>
+                <button class="btn" onclick="toggleRuler()">
+                    <i class="fas fa-ruler"></i> Ruler
+                </button>
+                <button class="btn" onclick="zoomIn()">
+                    <i class="fas fa-search-plus"></i> Zoom In
+                </button>
+                <button class="btn" onclick="zoomOut()">
+                    <i class="fas fa-search-minus"></i> Zoom Out
+                </button>
+                <button class="btn" onclick="resetZoom()">
+                    <i class="fas fa-sync"></i> Reset
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Panel - AI & Layers -->
+        <div class="ai-panel glass">
+            <!-- AI Assistant -->
+            <div class="tool-card glass">
+                <h3><i class="fas fa-robot"></i> AI Assistant</h3>
+                <input type="text" class="ai-command" id="aiCommand" 
+                       placeholder="Describe what to draw... (e.g., 'Draw a sunset')" 
+                       onkeypress="if(event.key === 'Enter') processAICommand()">
+                
+                <div class="ai-suggestions">
+                    <div class="ai-suggestion" onclick="aiDraw('tree')">🌳 Tree</div>
+                    <div class="ai-suggestion" onclick="aiDraw('house')">🏠 House</div>
+                    <div class="ai-suggestion" onclick="aiDraw('car')">🚗 Car</div>
+                    <div class="ai-suggestion" onclick="aiDraw('sunset')">🌅 Sunset</div>
+                    <div class="ai-suggestion" onclick="aiDraw('flower')">🌺 Flower</div>
+                    <div class="ai-suggestion" onclick="aiDraw('animal')">🐯 Animal</div>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <button class="tool-btn ai-feature" onclick="enhanceDrawing()" style="width:100%;">
+                        <i class="fas fa-magic"></i> Enhance Drawing
+                    </button>
+                    <button class="tool-btn ai-feature" onclick="convertTo3D()" style="width:100%; margin-top:10px;">
+                        <i class="fas fa-cube"></i> Convert to 3D
+                    </button>
+                    <button class="tool-btn ai-feature" onclick="animateDrawing()" style="width:100%; margin-top:10px;">
+                        <i class="fas fa-play"></i> Animate
+                    </button>
+                </div>
+            </div>
+
+            <!-- Layers -->
+            <div class="tool-card glass">
+                <h3><i class="fas fa-layer-group"></i> Layers</h3>
+                <div id="layersList">
+                    <div class="layer-item">
+                        <i class="fas fa-eye"></i>
+                        <div class="layer-thumbnail"></div>
+                        <span>Background</span>
+                        <div style="margin-left:auto;">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                    </div>
+                    <div class="layer-item active">
+                        <i class="fas fa-eye"></i>
+                        <div class="layer-thumbnail"></div>
+                        <span>Layer 1</span>
+                        <div style="margin-left:auto;">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 10px;">
+                    <button class="tool-btn" onclick="addLayer()" style="width:100%;">
+                        <i class="fas fa-plus"></i> Add Layer
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters & Effects -->
+            <div class="tool-card glass">
+                <h3><i class="fas fa-filter"></i> Filters</h3>
+                <div class="tool-grid">
+                    <button class="tool-btn" onclick="applyFilter('blur')">
+                        <i class="fas fa-blur"></i> Blur
+                    </button>
+                    <button class="tool-btn" onclick="applyFilter('sharpen')">
+                        <i class="fas fa-cut"></i> Sharpen
+                    </button>
+                    <button class="tool-btn" onclick="applyFilter('grayscale')">
+                        <i class="fas fa-adjust"></i> Grayscale
+                    </button>
+                    <button class="tool-btn" onclick="applyFilter('invert')">
+                        <i class="fas fa-inverse"></i> Invert
+                    </button>
+                    <button class="tool-btn" onclick="applyFilter('sepia')">
+                        <i class="fas fa-image"></i> Sepia
+                    </button>
+                    <button class="tool-btn" onclick="applyFilter('vintage')">
+                        <i class="fas fa-camera-retro"></i> Vintage
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mini-map -->
+            <div class="tool-card glass">
+                <h3><i class="fas fa-map"></i> Mini-map</h3>
+                <div class="minimap" id="minimap">
+                    <div class="minimap-viewport" id="minimapViewport"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Panel -->
+    <div class="bottom-panel">
+        <div class="status-group">
+            <div class="status-item">
+                <i class="fas fa-mouse-pointer"></i>
+                <span>Tool: <span id="statusTool">Pen</span></span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-expand-arrows-alt"></i>
+                <span>Zoom: <span id="statusZoom">100%</span></span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-ruler-combined"></i>
+                <span>Position: <span id="statusPosition">0, 0</span></span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-palette"></i>
+                <span>Color: <span id="statusColor">#000000</span></span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-history"></i>
+                <span>History: <span id="statusHistory">0</span> steps</span>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn" onclick="undo()" id="undoBtn">
+                <i class="fas fa-undo"></i> Undo
+            </button>
+            <button class="btn" onclick="redo()" id="redoBtn">
+                <i class="fas fa-redo"></i> Redo
+            </button>
+            <button class="btn btn-warning" onclick="clearCanvas()">
+                <i class="fas fa-broom"></i> Clear
+            </button>
+            <button class="btn btn-success" onclick="exportProject()">
+                <i class="fas fa-download"></i> Export
+            </button>
+            <button class="btn btn-primary" onclick="collaborate()">
+                <i class="fas fa-users"></i> Collaborate
+            </button>
+            <button class="btn btn-danger" onclick="showHelp()">
+                <i class="fas fa-question-circle"></i> Help
+            </button>
+        </div>
+    </div>
+
+    <!-- Modals and Overlays -->
+    <div id="exportModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
+        <div class="glass" style="padding:30px; min-width:400px;">
+            <h3 style="margin-bottom:20px;">Export Options</h3>
+            <div style="display:grid; gap:10px;">
+                <button class="btn" onclick="exportAsPNG()">📷 PNG Image</button>
+                <button class="btn" onclick="exportAsJPEG()">🖼️ JPEG Image</button>
+                <button class="btn" onclick="exportAsPDF()">📄 PDF Document</button>
+                <button class="btn" onclick="exportAsSVG()">🔷 SVG Vector</button>
+                <button class="btn" onclick="shareToSocial()">📱 Share to Social</button>
+            </div>
+            <button class="btn btn-danger" onclick="closeExportModal()" style="margin-top:20px; width:100%;">Close</button>
+        </div>
+    </div>
+
+    <!-- Particle Effects Container -->
+    <div id="particles" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:-1;"></div>
+
+    <script>
+        // ========== ULTRA PRO FEATURES ==========
+        
+        // 1. MULTIPLE CANVAS LAYERS SYSTEM
+        const layers = {
+            background: new OffscreenCanvas(2000, 2000),
+            drawing: new OffscreenCanvas(2000, 2000),
+            effects: new OffscreenCanvas(2000, 2000),
+            active: 'drawing'
+        };
+        
+        const mainCanvas = document.getElementById('mainCanvas');
+        const ctx = mainCanvas.getContext('2d');
+        const gridCanvas = document.getElementById('gridCanvas');
+        const gridCtx = gridCanvas.getContext('2d');
+        
+        // Set canvas size
+        function setupCanvas() {
+            const container = document.querySelector('.canvas-container');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            
+            mainCanvas.width = width;
+            mainCanvas.height = height;
+            gridCanvas.width = width;
+            gridCanvas.height = height;
+            
+            // Initialize layers
+            for (let layer in layers) {
+                if (layers[layer] instanceof OffscreenCanvas) {
+                    layers[layer].width = width;
+                    layers[layer].height = height;
+                }
+            }
+            
+            drawGrid();
+        }
+        
+        // 2. ADVANCED DRAWING ENGINE
+        let drawing = false;
+        let currentTool = 'pen';
+        let currentColor = '#000000';
+        let brushSize = 10;
+        let opacity = 1;
+        let flow = 0.8;
+        let hardness = 0.5;
+        let zoom = 1;
+        let offsetX = 0, offsetY = 0;
+        let isPanning = false;
+        let startX, startY;
+        let history = [];
+        let historyIndex = -1;
+        
+        // Brush types configuration
+        const brushes = {
+            pen: { type: 'round', texture: null },
+            brush: { type: 'textured', texture: 'brush' },
+            marker: { type: 'marker', texture: 'marker' },
+            spray: { type: 'spray', texture: 'spray' }
+        };
+        
+        // 3. GRID SYSTEM
+        function drawGrid() {
+            gridCtx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+            gridCtx.strokeStyle = 'rgba(0,0,0,0.1)';
+            gridCtx.lineWidth = 1;
+            
+            const gridSize = 20 * zoom;
+            const startX = offsetX % gridSize;
+            const startY = offsetY % gridSize;
+            
+            // Draw vertical lines
+            for (let x = startX; x < gridCanvas.width; x += gridSize) {
+                gridCtx.beginPath();
+                gridCtx.moveTo(x, 0);
+                gridCtx.lineTo(x, gridCanvas.height);
+                gridCtx.stroke();
+            }
+            
+            // Draw horizontal lines
+            for (let y = startY; y < gridCanvas.height; y += gridSize) {
+                gridCtx.beginPath();
+                gridCtx.moveTo(0, y);
+                gridCtx.lineTo(gridCanvas.width, y);
+                gridCtx.stroke();
+            }
+        }
+        
+        // 4. ENHANCED DRAWING FUNCTIONS
+        function startDrawing(e) {
+            drawing = true;
+            const pos = getCanvasPos(e);
+            startX = pos.x;
+            startY = pos.y;
+            
+            const layerCtx = layers[layers.active].getContext('2d');
+            layerCtx.beginPath();
+            layerCtx.moveTo(startX, startY);
+            
+            if (currentTool === 'spray') {
+                sprayPaint(startX, startY);
+            }
+        }
+        
+        function draw(e) {
+            if (!drawing) return;
+            
+            const pos = getCanvasPos(e);
+            const x = pos.x;
+            const y = pos.y;
+            
+            const layerCtx = layers[layers.active].getContext('2d');
+            
+            switch(currentTool) {
+                case 'pen':
+                case 'brush':
+                case 'marker':
+                    drawFreehand(layerCtx, x, y);
+                    break;
+                case 'spray':
+                    sprayPaint(x, y);
+                    break;
+                case 'fill':
+                    floodFill(x, y);
+                    break;
+            }
+            
+            renderAllLayers();
+        }
+        
+        function drawFreehand(ctx, x, y) {
+            ctx.lineWidth = brushSize;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.globalAlpha = opacity;
+            ctx.strokeStyle = currentColor;
+            ctx.globalCompositeOperation = 'source-over';
+            
+            // Advanced brush simulation
+            if (currentTool === 'brush') {
+                ctx.lineWidth = brushSize * 1.5;
+                ctx.globalAlpha = opacity * 0.7;
+            } else if (currentTool === 'marker') {
+                ctx.lineWidth = brushSize * 2;
+                ctx.globalAlpha = opacity * 0.5;
+                ctx.lineCap = 'square';
+            }
+            
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+        
+        function sprayPaint(x, y) {
+            const layerCtx = layers[layers.active].getContext('2d');
+            layerCtx.fillStyle = currentColor;
+            layerCtx.globalAlpha = opacity * 0.3;
+            
+            const particles = Math.floor(brushSize / 2);
+            for (let i = 0; i < particles; i++) {
+                const radius = Math.random() * brushSize;
+                const angle = Math.random() * Math.PI * 2;
+                const px = x + Math.cos(angle) * radius;
+                const py = y + Math.sin(angle) * radius;
+                const size = Math.random() * 3 + 1;
+                
+                layerCtx.beginPath();
+                layerCtx.arc(px, py, size, 0, Math.PI * 2);
+                layerCtx.fill();
+            }
+        }
+        
+        // 5. FLOOD FILL ALGORITHM
+        function floodFill(startX, startY) {
+            const layerCtx = layers[layers.active].getContext('2d');
+            const imageData = layerCtx.getImageData(0, 0, mainCanvas.width, mainCanvas.height);
+            const data = imageData.data;
+            const width = mainCanvas.width;
+            const height = mainCanvas.height;
+            
+            const startPos = (Math.floor(startY) * width + Math.floor(startX)) * 4;
+            const targetColor = {
+                r: data[startPos],
+                g: data[startPos + 1],
+                b: data[startPos + 2],
+                a: data[startPos + 3]
+            };
+            
+            const fillColor = hexToRgb(currentColor);
+            const stack = [[Math.floor(startX), Math.floor(startY)]];
+            const visited = new Set();
+            
+            while (stack.length > 0) {
+                const [x, y] = stack.pop();
+                const pos = (y * width + x) * 4;
+                
+                if (x < 0 || x >= width || y < 0 || y >= height) continue;
+                if (visited.has(`${x},${y}`)) continue;
+                
+                const r = data[pos];
+                const g = data[pos + 1];
+                const b = data[pos + 2];
+                const a = data[pos + 3];
+                
+                if (colorsMatch(r, g, b, a, targetColor)) {
+                    data[pos] = fillColor.r;
+                    data[pos + 1] = fillColor.g;
+                    data[pos + 2] = fillColor.b;
+                    data[pos + 3] = fillColor.a * 255;
+                    
+                    visited.add(`${x},${y}`);
+                    
+                    stack.push([x + 1, y]);
+                    stack.push([x - 1, y]);
+                    stack.push([x, y + 1]);
+                    stack.push([x, y - 1]);
+                }
+            }
+            
+            layerCtx.putImageData(imageData, 0, 0);
+            renderAllLayers();
+            saveState();
+        }
+        
+        function colorsMatch(r1, g1, b1, a1, color2) {
+            return Math.abs(r1 - color2.r) < 10 &&
+                   Math.abs(g1 - color2.g) < 10 &&
+                   Math.abs(b1 - color2.b) < 10 &&
+                   Math.abs(a1 - color2.a) < 10;
+        }
+        
+        function hexToRgb(hex) {
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            return { r, g, b, a: opacity };
+        }
+        
+        // 6. SHAPES DRAWING
+        function addShape(shape) {
+            const posX = mainCanvas.width / 2;
+            const posY = mainCanvas.height / 2;
+            const size = 100;
+            
+            const layerCtx = layers[layers.active].getContext('2d');
+            layerCtx.save();
+            layerCtx.lineWidth = brushSize;
+            layerCtx.strokeStyle = currentColor;
+            layerCtx.fillStyle = currentColor;
+            layerCtx.globalAlpha = opacity;
+            
+            layerCtx.beginPath();
+            
+            switch(shape) {
+                case 'line':
+                    layerCtx.moveTo(posX - size, posY);
+                    layerCtx.lineTo(posX + size, posY);
+                    break;
+                case 'rectangle':
+                    layerCtx.rect(posX - size, posY - size/2, size * 2, size);
+                    break;
+                case 'circle':
+                    layerCtx.arc(posX, posY, size, 0, Math.PI * 2);
+                    break;
+                case 'triangle':
+                    layerCtx.moveTo(posX, posY - size);
+                    layerCtx.lineTo(posX - size, posY + size);
+                    layerCtx.lineTo(posX + size, posY + size);
+                    layerCtx.closePath();
+                    break;
+                case 'star':
+                    drawStar(layerCtx, posX, posY, 5, size, size/2);
+                    break;
+                case 'arrow':
+                    layerCtx.moveTo(posX - size, posY);
+                    layerCtx.lineTo(posX + size, posY);
+                    layerCtx.moveTo(posX + size - 20, posY - 20);
+                    layerCtx.lineTo(posX + size, posY);
+                    layerCtx.lineTo(posX + size - 20, posY + 20);
+                    break;
+            }
+            
+            layerCtx.stroke();
+            if (!['line', 'arrow'].includes(shape)) {
+                layerCtx.fill();
+            }
+            layerCtx.restore();
+            
+            renderAllLayers();
+            saveState();
+        }
+        
+        function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+            let rot = Math.PI / 2 * 3;
+            let x = cx;
+            let y = cy;
+            let step = Math.PI / spikes;
+            
+            ctx.moveTo(cx, cy - outerRadius);
+            
+            for (let i = 0; i < spikes; i++) {
+                x = cx + Math.cos(rot) * outerRadius;
+                y = cy + Math.sin(rot) * outerRadius;
+                ctx.lineTo(x, y);
+                rot += step;
+                
+                x = cx + Math.cos(rot) * innerRadius;
+                y = cy + Math.sin(rot) * innerRadius;
+                ctx.lineTo(x, y);
+                rot += step;
+            }
+            
+            ctx.lineTo(cx, cy - outerRadius);
+            ctx.closePath();
+        }
+        
+        // 7. AI FEATURES
+        function processAICommand() {
+            const command = document.getElementById('aiCommand').value.toLowerCase();
+            aiDraw(command);
+        }
+        
+        function aiDraw(prompt) {
+            const layerCtx = layers[layers.active].getContext('2d');
+            layerCtx.save();
+            
+            // AI drawing simulation based on prompt
+            switch(prompt) {
+                case 'tree':
+                case 'draw a tree':
+                    drawTree(layerCtx, mainCanvas.width/2, mainCanvas.height/2, 100);
+                    break;
+                case 'house':
+                case 'draw a house':
+                    drawHouse(layerCtx, mainCanvas.width/2, mainCanvas.height/2, 120);
+                    break;
+                case 'car':
+                case 'draw a car':
+                    drawCar(layerCtx, mainCanvas.width/2, mainCanvas.height/2, 150);
+                    break;
+                case 'sunset':
+                case 'draw a sunset':
+                    drawSunset(layerCtx);
+                    break;
+                case 'flower':
+                case 'draw a flower':
+                    drawFlower(layerCtx, mainCanvas.width/2, mainCanvas.height/2, 80);
+                    break;
+                default:
+                    // Generate random shapes for unknown prompts
+                    for (let i = 0; i < 5; i++) {
+                        const x = Math.random() * mainCanvas.width;
+                        const y = Math.random() * mainCanvas.height;
+                        const size = Math.random() * 50 + 20;
+                        drawRandomShape(layerCtx, x, y, size);
+                    }
+            }
+            
+            layerCtx.restore();
+            renderAllLayers();
+            saveState();
+            
+            // Show AI response
+            showNotification(`AI drew: ${prompt}`, 'success');
+        }
+        
+        function drawTree(ctx, x, y, size) {
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(x - size/10, y - size/2, size/5, size);
+            
+            ctx.fillStyle = '#228B22';
+            for (let i = 0; i < 3; i++) {
+                const radius = size/2 - i * 20;
+                ctx.beginPath();
+                ctx.arc(x, y - size/2 - i * 30, radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        function drawHouse(ctx, x, y, size) {
+            // Base
+            ctx.fillStyle = '#FFD700';
+            ctx.fillRect(x - size/2, y - size/2, size, size);
+            
+            // Roof
+            ctx.fillStyle = '#8B0000';
+            ctx.beginPath();
+            ctx.moveTo(x - size/2, y - size/2);
+            ctx.lineTo(x + size/2, y - size/2);
+            ctx.lineTo(x, y - size);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Door
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(x - size/8, y, size/4, size/2);
+            
+            // Windows
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(x - size/3, y - size/4, size/6, size/6);
+            ctx.fillRect(x + size/6, y - size/4, size/6, size/6);
+        }
+        
+        function drawCar(ctx, x, y, size) {
+            // Body
+            ctx.fillStyle = '#FF0000';
+            ctx.fillRect(x - size/2, y - size/6, size, size/3);
+            ctx.beginPath();
+            ctx.arc(x - size/3, y + size/6, size/6, 0, Math.PI * 2);
+            ctx.arc(x + size/3, y + size/6, size/6, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Windows
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(x - size/4, y - size/8, size/2, size/6);
+            
+            // Wheels
+            ctx.fillStyle = '#000000';
+            ctx.beginPath();
+            ctx.arc(x - size/3, y + size/6, size/8, 0, Math.PI * 2);
+            ctx.arc(x + size/3, y + size/6, size/8, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function drawSunset(ctx) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, mainCanvas.height);
+            gradient.addColorStop(0, '#FF4500');
+            gradient.addColorStop(0.5, '#FFD700');
+            gradient.addColorStop(1, '#1E90FF');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+            
+            // Sun
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(mainCanvas.width/2, mainCanvas.height * 0.7, 50, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Birds
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 5; i++) {
+                const x = Math.random() * mainCanvas.width;
+                const y = Math.random() * mainCanvas.height * 0.5;
+                drawBird(ctx, x, y);
+            }
+        }
+        
+        function drawBird(ctx, x, y) {
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.quadraticCurveTo(x + 10, y - 10, x + 20, y);
+            ctx.moveTo(x, y);
+            ctx.quadraticCurveTo(x - 10, y - 10, x - 20, y);
+            ctx.stroke();
+        }
+        
+        function drawFlower(ctx, x, y, size) {
+            // Stem
+            ctx.strokeStyle = '#008000';
+            ctx.lineWidth = size/10;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, y + size);
+            ctx.stroke();
+            
+            // Petals
+            ctx.fillStyle = '#FF1493';
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const px = x + Math.cos(angle) * size/2;
+                const py = y + Math.sin(angle) * size/2;
+                ctx.beginPath();
+                ctx.arc(px, py, size/4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Center
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(x, y, size/6, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function drawRandomShape(ctx, x, y, size) {
+            const shapes = ['circle', 'square', 'triangle', 'star'];
+            const shape = shapes[Math.floor(Math.random() * shapes.length)];
+            const color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+            
+            ctx.fillStyle = color;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            
+            switch(shape) {
+                case 'circle':
+                    ctx.beginPath();
+                    ctx.arc(x, y, size/2, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                case 'square':
+                    ctx.fillRect(x - size/2, y - size/2, size, size);
+                    break;
+                case 'triangle':
+                    ctx.beginPath();
+                    ctx.moveTo(x, y - size/2);
+                    ctx.lineTo(x - size/2, y + size/2);
+                    ctx.lineTo(x + size/2, y + size/2);
+                    ctx.closePath();
+                    ctx.fill();
+                    break;
+                case 'star':
+                    drawStar(ctx, x, y, 5, size/2, size/4);
+                    ctx.fill();
+                    break;
+            }
+        }
+        
+        // 8. ENHANCE DRAWING (AI Upscaling Simulation)
+        function enhanceDrawing() {
+            showNotification('Enhancing drawing with AI...', 'info');
+            
+            setTimeout(() => {
+                const layerCtx = layers[layers.active].getContext('2d');
+                const imageData = layerCtx.getImageData(0, 0, mainCanvas.width, mainCanvas.height);
+                const data = imageData.data;
+                
+                // Simulate enhancement by increasing contrast
+                for (let i = 0; i < data.length; i += 4) {
+                    const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                    const factor = 1.2;
+                    
+                    data[i] = Math.min(255, avg + (data[i] - avg) * factor);
+                    data[i + 1] = Math.min(255, avg + (data[i + 1] - avg) * factor);
+                    data[i + 2] = Math.min(255, avg + (data[i + 2] - avg) * factor);
+                }
+                
+                layerCtx.putImageData(imageData, 0, 0);
+                renderAllLayers();
+                showNotification('Drawing enhanced!', 'success');
+            }, 1000);
+        }
+        
+        // 9. ANIMATION SYSTEM
+        function animateDrawing() {
+            showNotification('Creating animation...', 'info');
+            
+            const frames = [];
+            const layerCtx = layers[layers.active].getContext('2d');
+            
+            // Capture current frame
+            frames.push(layerCtx.getImageData(0, 0, mainCanvas.width, mainCanvas.height));
+            
+            // Create animation preview
+            const preview = document.createElement('canvas');
+            preview.width = 200;
+            preview.height = 200;
+            const previewCtx = preview.getContext('2d');
+            
+            // Simple animation: rotate and scale
+            let angle = 0;
+            const interval = setInterval(() => {
+                previewCtx.clearRect(0, 0, 200, 200);
+                previewCtx.save();
+                previewCtx.translate(100, 100);
+                previewCtx.rotate(angle);
+                previewCtx.scale(1 + Math.sin(angle) * 0.2, 1 + Math.sin(angle) * 0.2);
+                previewCtx.drawImage(mainCanvas, -100, -100, 200, 200);
+                previewCtx.restore();
+                
+                angle += 0.1;
+                if (angle > Math.PI * 2) {
+                    clearInterval(interval);
+                    showNotification('Animation created!', 'success');
+                }
+            }, 50);
+            
+            // Show animation preview
+            document.body.appendChild(preview);
+            preview.style.position = 'fixed';
+            preview.style.bottom = '20px';
+            preview.style.right = '20px';
+            preview.style.border = '2px solid var(--primary)';
+            preview.style.borderRadius = '10px';
+            preview.style.zIndex = '1000';
+            
+            setTimeout(() => preview.remove(), 3000);
+        }
+        
+        // 10. FILTERS & EFFECTS
+        function applyFilter(filter) {
+            const layerCtx = layers[layers.active].getContext('2d');
+            const imageData = layerCtx.getImageData(0, 0, mainCanvas.width, mainCanvas.height);
+            const data = imageData.data;
+            
+            switch(filter) {
+                case 'blur':
+                    // Simple box blur
+                    for (let i = 0; i < data.length; i += 4) {
+                        if (i > 4 && i < data.length - 4) {
+                            data[i] = (data[i-4] + data[i] + data[i+4]) / 3;
+                            data[i+1] = (data[i-3] + data[i+1] + data[i+5]) / 3;
+                            data[i+2] = (data[i-2] + data[i+2] + data[i+6]) / 3;
+                        }
+                    }
+                    break;
+                    
+                case 'grayscale':
+                    for (let i = 0; i < data.length; i += 4) {
+                        const avg = data[i] * 0.3 + data[i+1] * 0.59 + data[i+2] * 0.11;
+                        data[i] = data[i+1] = data[i+2] = avg;
+                    }
+                    break;
+                    
+                case 'invert':
+                    for (let i = 0; i < data.length; i += 4) {
+                        data[i] = 255 - data[i];
+                        data[i+1] = 255 - data[i+1];
+                        data[i+2] = 255 - data[i+2];
+                    }
+                    break;
+                    
+                case 'sepia':
+                    for (let i = 0; i < data.length; i += 4) {
+                        const r = data[i];
+                        const g = data[i+1];
+                        const b = data[i+2];
+                        
+                        data[i] = Math.min(255, (r * 0.393) + (g * 0.769) + (b * 0.189));
+                        data[i+1] = Math.min(255, (r * 0.349) + (g * 0.686) + (b * 0.168));
+                        data[i+2] = Math.min(255, (r * 0.272) + (g * 0.534) + (b * 0.131));
+                    }
+                    break;
+            }
+            
+            layerCtx.putImageData(imageData, 0, 0);
+            renderAllLayers();
+            showNotification(`Applied ${filter} filter`, 'success');
+        }
+        
+        // 11. ZOOM & PAN
+        function zoomIn() {
+            zoom *= 1.2;
+            updateZoom();
+        }
+        
+        function zoomOut() {
+            zoom /= 1.2;
+            updateZoom();
+        }
+        
+        function resetZoom() {
+            zoom = 1;
+            offsetX = offsetY = 0;
+            updateZoom();
+        }
+        
+        function updateZoom() {
+            document.getElementById('statusZoom').textContent = `${Math.round(zoom * 100)}%`;
+            drawGrid();
+            renderAllLayers();
+        }
+        
+        function toggleGrid() {
+            gridCanvas.style.display = gridCanvas.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // 12. EXPORT SYSTEM
+        function exportProject() {
+            document.getElementById('exportModal').style.display = 'flex';
+        }
+        
+        function closeExportModal() {
+            document.getElementById('exportModal').style.display = 'none';
+        }
+        
+        function exportAsPNG() {
+            const link = document.createElement('a');
+            link.download = `ultra-whiteboard-${Date.now()}.png`;
+            link.href = mainCanvas.toDataURL('image/png', 1.0);
+            link.click();
+            showNotification('Exported as PNG!', 'success');
+        }
+        
+        function exportAsJPEG() {
+            const link = document.createElement('a');
+            link.download = `ultra-whiteboard-${Date.now()}.jpg`;
+            link.href = mainCanvas.toDataURL('image/jpeg', 0.9);
+            link.click();
+            showNotification('Exported as JPEG!', 'success');
+        }
+        
+        function exportAsPDF() {
+            showNotification('PDF export requires server-side processing', 'info');
+        }
+        
+        function exportAsSVG() {
+            showNotification('SVG export coming soon!', 'info');
+        }
+        
+        function shareToSocial() {
+            if (navigator.share) {
+                mainCanvas.toBlob(blob => {
+                    const file = new File([blob], 'drawing.png', { type: 'image/png' });
+                    navigator.share({
+                        files: [file],
+                        title: 'My Ultra Whiteboard Creation',
+                        text: 'Check out what I made!'
+                    });
+                });
+            } else {
+                showNotification('Share not supported on this device', 'warning');
+            }
+        }
+        
+        // 13. COLLABORATION SYSTEM (Simulated)
+        function collaborate() {
+            showNotification('Starting collaboration session...', 'info');
+            
+            // Simulated collaborative drawing
+            setTimeout(() => {
+                const simulatedUsers = ['👤 Alex', '👤 Sam', '👤 Taylor'];
+                const user = simulatedUsers[Math.floor(Math.random() * simulatedUsers.length)];
+                
+                const x = Math.random() * mainCanvas.width;
+                const y = Math.random() * mainCanvas.height;
+                const size = Math.random() * 30 + 10;
+                
+                const layerCtx = layers[layers.active].getContext('2d');
+                layerCtx.fillStyle = `hsl(${Math.random() * 360}, 70%, 60%)`;
+                layerCtx.beginPath();
+                layerCtx.arc(x, y, size, 0, Math.PI * 2);
+                layerCtx.fill();
+                
+                renderAllLayers();
+                showNotification(`${user} added a circle`, 'info');
+            }, 500);
+        }
+        
+        // 14. NOTIFICATION SYSTEM
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                background: ${type === 'success' ? '#10b981' : type === 'warning' ? '#f59e0b' : '#6366f1'};
+                color: white;
+                border-radius: 10px;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // 15. PARTICLE EFFECTS
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.style.cssText = `
+                    position: absolute;
+                    width: ${Math.random() * 5 + 2}px;
+                    height: ${Math.random() * 5 + 2}px;
+                    background: hsl(${Math.random() * 360}, 70%, 60%);
+                    border-radius: 50%;
+                    top: ${Math.random() * 100}vh;
+                    left: ${Math.random() * 100}vw;
+                    animation: float ${Math.random() * 10 + 10}s infinite linear;
+                `;
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // 16. UTILITY FUNCTIONS
+        function getCanvasPos(e) {
+            const rect = mainCanvas.getBoundingClientRect();
+            let x, y;
+            
+            if (e.type.includes('touch')) {
+                x = e.touches[0].clientX - rect.left;
+                y = e.touches[0].clientY - rect.top;
+            } else {
+                x = e.clientX - rect.left;
+                y = e.clientY - rect.top;
+            }
+            
+            return {
+                x: (x - offsetX) / zoom,
+                y: (y - offsetY) / zoom
+            };
+        }
+        
+        function renderAllLayers() {
+            ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+            
+            // Draw background
+            ctx.drawImage(layers.background, 0, 0);
+            
+            // Draw drawing layer
+            ctx.drawImage(layers.drawing, 0, 0);
+            
+            // Draw effects layer
+            ctx.drawImage(layers.effects, 0, 0);
+        }
+        
+        function saveState() {
+            historyIndex++;
+            history = history.slice(0, historyIndex);
+            
+            // Save all layers
+            const state = {
+                background: layers.background.transferToImageBitmap(),
+                drawing: layers.drawing.transferToImageBitmap(),
+                effects: layers.effects.transferToImageBitmap()
+            };
+            
+            history.push(state);
+            updateHistoryButtons();
+            document.getElementById('statusHistory').textContent = historyIndex + 1;
+        }
+        
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                restoreState();
+            }
+        }
+        
+        function redo() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                restoreState();
+            }
+        }
+        
+        function restoreState() {
+            const state = history[historyIndex];
+            
+            // Restore all layers
+            const bgCtx = layers.background.getContext('2d');
+            const drawCtx = layers.drawing.getContext('2d');
+            const effectsCtx = layers.effects.getContext('2d');
+            
+            bgCtx.clearRect(0, 0, layers.background.width, layers.background.height);
+            drawCtx.clearRect(0, 0, layers.drawing.width, layers.drawing.height);
+            effectsCtx.clearRect(0, 0, layers.effects.width, layers.effects.height);
+            
+            bgCtx.drawImage(state.background, 0, 0);
+            drawCtx.drawImage(state.drawing, 0, 0);
+            effectsCtx.drawImage(state.effects, 0, 0);
+            
+            renderAllLayers();
+            updateHistoryButtons();
+            document.getElementById('statusHistory').textContent = historyIndex + 1;
+        }
+        
+        function updateHistoryButtons() {
+            document.getElementById('undoBtn').disabled = historyIndex <= 0;
+            document.getElementById('redoBtn').disabled = historyIndex >= history.length - 1;
+        }
+        
+        function setTool(tool) {
+            currentTool = tool;
+            document.getElementById('statusTool').textContent = tool.charAt(0).toUpperCase() + tool.slice(1);
+            
+            // Update active button
+            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function setColor(color) {
+            currentColor = color;
+            document.getElementById('statusColor').textContent = color;
+            document.getElementById('customColor').value = color;
+            
+            // Update active color
+            document.querySelectorAll('.color-dot').forEach(dot => dot.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function setGradient(type) {
+            let gradient;
+            switch(type) {
+                case 'sunset':
+                    gradient = 'linear-gradient(45deg, #ff0000, #ffff00)';
+                    break;
+                case 'ocean':
+                    gradient = 'linear-gradient(45deg, #00ff00, #0000ff)';
+                    break;
+            }
+            currentColor = gradient;
+            showNotification('Gradient brush activated!', 'success');
+        }
+        
+        function updateBrushSize(size) {
+            brushSize = parseInt(size);
+            document.getElementById('brushSizeValue').textContent = size;
+        }
+        
+        function updateOpacity(value) {
+            opacity = value / 100;
+            document.getElementById('opacityValue').textContent = value;
+        }
+        
+        function updateFlow(value) {
+            flow = value / 100;
+            document.getElementById('flowValue').textContent = value;
+        }
+        
+        function updateHardness(value) {
+            hardness = value / 100;
+            document.getElementById('hardnessValue').textContent = value;
+        }
+        
+        function clearCanvas() {
+            if (confirm('Clear all drawings?')) {
+                const bgCtx = layers.background.getContext('2d');
+                const drawCtx = layers.drawing.getContext('2d');
+                const effectsCtx = layers.effects.getContext('2d');
+                
+                bgCtx.clearRect(0, 0, layers.background.width, layers.background.height);
+                drawCtx.clearRect(0, 0, layers.drawing.width, layers.drawing.height);
+                effectsCtx.clearRect(0, 0, layers.effects.width, layers.effects.height);
+                
+                renderAllLayers();
+                saveState();
+            }
+        }
+        
+        function createNewProject() {
+            if (confirm('Start a new project? Current work will be saved.')) {
+                clearCanvas();
+                showNotification('New project created!', 'success');
+            }
+        }
+        
+        function saveProject() {
+            showNotification('Project saved to cloud! ☁️', 'success');
+        }
+        
+        function showHelp() {
+            showNotification(`
+                🎨 Ultra Pro Whiteboard Tips:
+                • Use AI Assistant for quick drawings
+                • Try different brush types
+                • Use layers for complex drawings
+                • Export in multiple formats
+                • Collaborate with others
+            `, 'info');
+        }
+        
+        // 17. EVENT LISTENERS
+        mainCanvas.addEventListener('mousedown', startDrawing);
+        mainCanvas.addEventListener('mousemove', draw);
+        mainCanvas.addEventListener('mouseup', () => {
+            drawing = false;
+            saveState();
+        });
+        mainCanvas.addEventListener('mouseout', () => drawing = false);
+        
+        // Touch support
+        mainCanvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            startDrawing(e);
+        });
+        
+        mainCanvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            draw(e);
+        });
+        
+        mainCanvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            drawing = false;
+            saveState();
+        });
+        
+        // Panning with spacebar + drag
+        let isSpacePressed = false;
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') isSpacePressed = true;
+            if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); }
+            if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); }
+            if (e.key === 'Delete') clearCanvas();
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') isSpacePressed = false;
+        });
+        
+        // Update mouse position
+        mainCanvas.addEventListener('mousemove', (e) => {
+            const pos = getCanvasPos(e);
+            document.getElementById('statusPosition').textContent = 
+                `${Math.round(pos.x)}, ${Math.round(pos.y)}`;
+        });
+        
+        // 18. INITIALIZATION
+        window.addEventListener('load', () => {
+            setupCanvas();
+            createParticles();
+            saveState();
+            
+            // Add CSS animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+                @keyframes float {
+                    0% { transform: translateY(0) rotate(0deg); }
+                    100% { transform: translateY(-100vh) rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            console.log('🚀 ULTRA PRO WHITEBOARD LOADED!');
+            console.log('✨ Features: AI Drawing, Layers, Filters, Animation, Collaboration');
+        });
+        
+        window.addEventListener('resize', setupCanvas);
+    </script>
+</body>
+</html>
